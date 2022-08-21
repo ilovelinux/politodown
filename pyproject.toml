@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "politodown"
+version = "0.1.0"
+authors = [
+  { name="Antonio Spadaro", email="antoniospadaro45@gmail.com" },
+]
+description = "An amazing asyncronous library to download materials and videolessons from the Polito teaching portal."
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Topic :: Utilities",
+    "Framework :: AsyncIO",
+]
+dependencies = [
+    "aiofiles",
+    "httpx",
+    "beautifulsoup4",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ilovelinux/politodown"
+"Bug Tracker" = "https://github.com/ilovelinux/politodown/issues"
