@@ -8,7 +8,7 @@ version = "0.1.0"
 authors = [
   { name="Antonio Spadaro", email="antoniospadaro45@gmail.com" },
 ]
-description = "An amazing asyncronous library to download materials and videolessons from the Polito teaching portal."
+description = "An amazing asynchronous library to download materials and videolessons from the Polito teaching portal."
 readme = "README.md"
 license = { file="LICENSE" }
 requires-python = ">=3.9"

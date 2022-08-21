@@ -1,3 +1,3 @@
 # Polito Downloader
 
-An amazing **asyncronous** library to download materials and videolessons from the Polito teaching portal.
+An amazing **asynchronous** library to download material and videolessons from the Polito teaching portal.
