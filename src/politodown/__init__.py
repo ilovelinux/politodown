@@ -5,4 +5,4 @@ from .http import LoginError
 __all__ = [
     "session", "signin", "get_material", "get_videostores", "LoginError"]
 
-__version__ = "0.1.2"
+__version__ = "0.1.0"
