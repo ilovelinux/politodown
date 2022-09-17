@@ -239,7 +239,7 @@ class Videostore_old(Videostore):
         response = await session.get(self.vis)
         page = bs4.BeautifulSoup(response.content, "html.parser")
 
-        summary = page.find_all("ul", {"class": "lezioni"})
+        summary = page.find_all("ul", {"class": "lezioni"})[0]
         lessons = summary.find_all("a")
         dates = summary.find_all("span", {"class": "small"})
         lessons_arguments = summary.find_all("li", {"class": "argEspansi1"})

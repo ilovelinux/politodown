@@ -77,8 +77,18 @@ async def get_videostores(year: int) -> dict[str, Videostore]:
             else:
                 inc_regex = re.compile(r"dokeosLez\(\'(\d+)\'\)")
                 inc, = inc_regex.match(videolesson["onclick"]).groups()
+                data = await session.get(
+                    httpx.URL(
+                        urls.did/"pls/portal30/sviluppo.materiale.json_dokeos_par",
+                        params={"inc": inc}
+                    )
+                )
+                data.raise_for_status()
+                data_json = data.json()
                 videolessons[videolesson_name] = \
-                Videostore_old(year, videostore_name, videolesson_name, inc)
+                Videostore_old(year, videostore_name, videolesson_name, inc, data_json['utente'], data_json['data'], data_json['token']
+                )
+                
             
 
         videostores[videostore_name] = videolessons
