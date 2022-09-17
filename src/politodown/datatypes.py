@@ -204,7 +204,7 @@ class Videostore_old(Videostore):
         self.name = name
         self.category = category
         self.vis = httpx.URL(
-            urls.elearn/"template_video.php",
+            urls.elearn/"gadgets/video/template_video.php",
             params = {
                 'inc': inc,
                 'utente': utente,
@@ -261,7 +261,7 @@ class Videostore_old(Videostore):
             ]
 
             # Open the videolesson page to extract infos about the video file
-            url = urls.elearn/lesson['href']
+            url = urls.elearn/"gadgets/video/"/lesson['href']
 
             coros.append(self._get_videolesson_info(url, name, date, arguments))
 
@@ -277,7 +277,7 @@ class Videostore_old(Videostore):
         async with session.stream("GET", url) as stream:
             page = bs4.BeautifulSoup(await stream.aread(), "html.parser")
 
-            videohref = urls.elearn/page.find("a", text="Video")["href"]
+            videohref = urls.elearn/"gadgets/video/"/page.find("a", text="Video")["href"]
 
             videoinfo = page.find_all('div', {'id':'tooltip1'})
             filename = videoinfo.find_all('td', {'class':'value'})[0]

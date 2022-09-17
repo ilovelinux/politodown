@@ -12,7 +12,7 @@ class BaseURL(httpx.URL):
 
 IDP = BaseURL("https://idp.polito.it/")
 did = BaseURL("https://didattica.polito.it/")
-elearn = BaseURL("https://elearning.polito.it/gadgets/video/")
+elearn = BaseURL("https://elearning.polito.it/")
 
 loginpage = IDP/"idp/x509mixed-login"
 login = IDP/"idp/Authn/X509Mixed/UserPasswordLogin"
