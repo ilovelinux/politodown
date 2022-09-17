@@ -4,7 +4,7 @@ import re
 import httpx
 import bs4
 
-from .datatypes import Material, Videostore
+from .datatypes import Material, Videostore, Videostore_old
 from . import session, urls
 
 async def get_material(year: int) -> dict[str, Material]:
@@ -53,7 +53,7 @@ async def get_videostores(year: int) -> dict[str, Videostore]:
     page = bs4.BeautifulSoup(response.content, "html.parser")
     videostores = {}
 
-    data_regex = re.compile(r"sviluppo\.videolezioni\.vis\?cor=(\d+)")
+    data_regex = re.compile(r"(sviluppo\.videolezioni\.vis\?cor=(\d+))|(javascript:void\(null\);)")
     raw_videostores = page.find_all("a", {"onclick": re.compile(r"showDivVideoteca\('\w+'\)")})
     videolessons_group = page.find_all("div", {"class": "policorpo"})
     for videostore, raw_videolessons in zip(raw_videostores, videolessons_group):
@@ -70,9 +70,16 @@ async def get_videostores(year: int) -> dict[str, Videostore]:
                 continue
 
             videolesson_name = videolesson.text.strip()
-            cor, = data_regex.search(videolesson["href"]).groups()
-            videolessons[videolesson_name] = \
+            if data_regex.match(videolesson["href"]).group(1):
+                cor = data_regex.search(videolesson["href"]).group(2)
+                videolessons[videolesson_name] = \
                 Videostore(year, videostore_name, videolesson_name, cor)
+            else:
+                inc_regex = re.compile(r"dokeosLez\(\'(\d+)\'\)")
+                inc, = inc_regex.match(videolesson["onclick"]).groups()
+                videolessons[videolesson_name] = \
+                Videostore_old(year, videostore_name, videolesson_name, inc)
+            
 
         videostores[videostore_name] = videolessons
 
