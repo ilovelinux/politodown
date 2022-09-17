@@ -1,3 +1,4 @@
+import sre_compile
 from typing import Optional, Callable, AsyncIterator, Union, Dict, List
 import datetime
 import asyncio
@@ -186,6 +187,116 @@ class Videostore:
             }
 
             return File(self, filename, videohref, properties=properties)
+
+class Videostore_old(Videostore):
+    def __init__(
+        self,
+        year: int,
+        category: str,
+        name: str,
+        inc: int,
+        utente: str, 
+        data: str,
+        token: str
+    ):
+
+        self.year = year
+        self.name = name
+        self.category = category
+        self.vis = httpx.URL(
+            urls.elearn/"gadgets/video/template_video.php",
+            params = {
+                'inc': inc,
+                'utente': utente,
+                'data': data,
+                'token': token,
+            }
+
+        )
+        self._videolessons = {}
+
+    async def videolessons(
+        self,
+        force_update: bool = False
+    ) -> dict[str, "File"]:
+        """
+        Get videolessons and cache the response.
+
+        Cache will be overwrite only if `force_update` is `True`
+        """
+        if self._videolessons and not force_update:
+            return self._videolessons
+
+        coros = await self._get_videolessons()
+        self._videolessons = {
+            videolesson.properties["name"]: videolesson
+            for videolesson in await asyncio.gather(*coros)
+        }
+
+        return self._videolessons
+
+    async def _get_videolessons(self):
+        response = await session.get(self.vis)
+        page = bs4.BeautifulSoup(response.content, "html.parser")
+
+        summary = page.find_all("ul", {"class": "lezioni"})[0]
+        lessons = summary.find_all("a")
+        dates = summary.find_all("span", {"class": "small"})
+        lessons_arguments = summary.find_all("li", {"class": "argEspansi1"})
+
+        coros = []
+
+        for lesson, date, arguments in zip(lessons, dates, lessons_arguments):
+            # Name
+            name = lesson.text
+
+            # Date
+            raw_date = date.text[4:]  # date = "del YYYY-mm-dd"
+            date = datetime.datetime.strptime(raw_date, "%Y-%m-%d")
+
+            # Arguments
+            arguments = [
+                argument.text
+                for argument in arguments.find_all("a", {"class": "argoLink"})
+            ]
+
+            # Open the videolesson page to extract infos about the video file
+            url = urls.elearn/"gadgets/video/"/lesson['href']
+
+            coros.append(self._get_videolesson_info(url, name, date, arguments))
+
+        return coros
+
+    async def _get_videolesson_info(
+        self,
+        url: urls.BaseURL,
+        name: str,
+        date: datetime.datetime,
+        arguments: List[str]
+    ) -> "File":
+        async with session.stream("GET", url) as stream:
+            page = bs4.BeautifulSoup(await stream.aread(), "html.parser")
+
+            videohref = urls.elearn/"gadgets/video/"/page.find("a", text="Video")["href"]
+
+            videoinfo = page.find_all('div', {'id':'tooltip1'})
+            filename = videoinfo.find_all('td', {'class':'value'})[0]
+
+            properties = {
+                "name": name,
+                "date": date,
+                "arguments": arguments,
+                **{
+                    name.text.strip().lower(): value.text
+                    for name, value in [
+                        info.find_all("td")
+                        for info in videoinfo.find_all("tr")
+                    ]
+                },
+            }
+
+            return File(self, filename, videohref, properties=properties)
+
 
 
 class Folder:
